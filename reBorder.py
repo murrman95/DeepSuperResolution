@@ -7,7 +7,7 @@ height, width, channels = img.shape
 
 print(img.dtype)
 
-borderFill = 4
+borderFill = 10
 
 mat = np.zeros((height + (2*borderFill), width + (2*borderFill)), dtype = "uint8")
 img2 =  np.zeros((height + (2*borderFill), width + (2*borderFill), 3), dtype = img.dtype)
