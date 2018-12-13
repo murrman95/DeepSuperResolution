@@ -8,9 +8,9 @@ import model
 import tensorflow as tf
 from matplotlib import  pyplot as plt
 def get_mnist():
-    train_y_images_path = './91/*.png'
-    # mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-    HR_img=np.reshape(train_y_images_path,(-1,28,28,1)) #mnist.train.images[0:2000]
+    #train_y_images_path = './91/*.png'
+    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+    HR_img=np.reshape(mnist.train.images[0:2000],(-1,28,28,1)) #mnist.train.images[0:2000]
     LR_img=[]
     for i in range(len(HR_img)):
         _img=zoom(np.squeeze(HR_img[i]),cfg.s)

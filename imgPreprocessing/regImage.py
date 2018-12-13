@@ -12,6 +12,7 @@ onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 for i in onlyfiles:
     #img = cv.imread(mypath + "/" + i)
 
+    #
     img0, img1, img2 = si.split(mypath + "/" + i)
 
     img1 = cv.resize(img1.astype(dtype = np.uint8), (100,100), interpolation = cv.INTER_CUBIC)
