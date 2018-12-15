@@ -1,6 +1,7 @@
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 import config as cfg
+import config91 as cfg91
 from scipy.ndimage import zoom
 import cv2
 import os

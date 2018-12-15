@@ -1,46 +1,33 @@
 import cv2 as cv
 import numpy as np
 
-img = cv.imread("images/graffiti.jpg")
+#Supply function with path to image and the numbe of pixels to expand the border by.
+def borderPad(path,numPixels):
+    img = cv.imread(path)
 
-height, width, channels = img.shape
+    height, width, channels = img.shape
 
-print(img.dtype)
+    print(img.dtype)
 
-borderFill = 10
+    #mask matrix
+    mat = np.zeros((height + (2*numPixels), width + (2*numPixels)), dtype = "uint8")
 
-mat = np.zeros((height + (2*borderFill), width + (2*borderFill)), dtype = "uint8")
-img2 =  np.zeros((height + (2*borderFill), width + (2*borderFill), 3), dtype = img.dtype)
+    #The resulting image
+    img2 =  np.zeros((height + (2*numPixels), width + (2*numPixels), 3), dtype = img.dtype)
 
-for i in range(height + (2*borderFill)):
-    for j in range(width + (2*borderFill)):
-        if( i < borderFill):
-            mat[i,j] = 255
-        elif( i >= height + borderFill):
-            mat[i,j] = 255
-        elif( j < borderFill):
-            mat[i,j] = 255
-        elif( j >= width + borderFill):
-            mat[i,j] = 255
-        else:
-            img2[i,j,0] = img[i - borderFill, j - borderFill,0]
-            img2[i,j,1] = img[i - borderFill, j - borderFill,1]
-            img2[i,j,2] = img[i - borderFill, j - borderFill,2]
+    for i in range(height + (2*numPixels)):
+        for j in range(width + (2*numPixels)):
+            if( i < numPixels):
+                mat[i,j] = 255
+            elif( i >= height + numPixels):
+                mat[i,j] = 255
+            elif( j < numPixels):
+                mat[i,j] = 255
+            elif( j >= width + numPixels):
+                mat[i,j] = 255
+            else:
+                img2[i,j,0] = img[i - numPixels, j - numPixels,0]
+                img2[i,j,1] = img[i - numPixels, j - numPixels,1]
+                img2[i,j,2] = img[i - numPixels, j - numPixels,2]
 
-
-
-
-cv.imshow('Graffiti before extending the border', img)
-cv.imshow('Graffiti transplanted onto a new array', img2)
-cv.imshow('Mask', mat)
-cv.waitKey(0)
-
-dst = cv.inpaint(img2,mat,3,cv.INPAINT_TELEA)
-cv.imshow('Inpainted border -- Telea',dst)
-dst = cv.inpaint(img2,mat,3,cv.INPAINT_NS)
-cv.imshow('Inpainted border -- Navier Stokes',dst)
-
-cv.waitKey(0)
-
-cv.destroyAllWindows()
-
+    return img2
