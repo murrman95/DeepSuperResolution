@@ -19,8 +19,9 @@ def get_images():
     train_images = []
     train_low = []
     #Chris's training photos
-    mypath = "/home/christopher/test_images"
+    mypath = "./images"#mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    print(len(onlyfiles))
 
 	#Number of image for training and testing
     for i in range(0,numImages):
@@ -41,7 +42,7 @@ def save_mnist():
     a,b=get_images()
     print(a.shape,b.shape)
     z=np.concatenate((a,b),2)
-    for i in range(100):
+    for i in range(20):
         cv2.imwrite(os.path.join('origin',str(i)+'.jpg'),z[i]*256)
 LR_img,HR_img=get_images()
 sess=tf.Session()
