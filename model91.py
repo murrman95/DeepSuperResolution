@@ -2,6 +2,7 @@ import tensorflow as tf
 import config91 as cfg
 from sklearn.utils import shuffle
 slim=tf.contrib.slim
+import numpy as np
 
 class SRCNN:
     def __init__(self,sess):
@@ -9,6 +10,7 @@ class SRCNN:
         self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel*cfg.numImages])
         self.gen_HR=self.network()
         self.sess=sess
+        # self.nbr_layers=6
 
 
     def network(self):
@@ -31,5 +33,3 @@ class SRCNN:
                 if j%5==0:
                     print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
             saver.save(self.sess,cfg.model_ckpt,global_step=i)
-
-
