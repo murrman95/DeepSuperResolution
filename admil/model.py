@@ -62,7 +62,7 @@ class Attention(nn.Module):
         HR_Gen = self.forward(X)
         error = sum(abs(X - HR_Gen))
 
-        return H
+        return error
 
     def calculate_objective(self, X, Y):
         Y = Y.float()

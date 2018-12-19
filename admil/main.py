@@ -86,7 +86,9 @@ def train(epoch):
         # reset gradients
         optimizer.zero_grad()
         # calculate loss and metrics
-        #loss, _ = model.calculate_objective(data, bag_label)
+        loss, _ = model.calculate_objective(data, bag_label)
+        loss, _ = model.calculate_objective(data, bag_label)
+
         train_loss += loss.data[0]
         error, _ = model.calculate_classification_error(data,HR)
         train_error += error
