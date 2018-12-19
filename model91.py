@@ -6,8 +6,8 @@ import numpy as np
 
 class SRCNN:
     def __init__(self,sess):
-        self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
-        self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
+        self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel*cfg.numImages])
+        self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel*cfg.numImages])
         self.gen_HR=self.network()
         self.sess=sess
         # self.nbr_layers=6

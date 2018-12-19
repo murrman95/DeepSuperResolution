@@ -12,9 +12,9 @@ class SRCNN:
 
 
     def network(self):
-        conv1 = slim.conv2d(self.LR,64*cfg.channel,(9,9,cfg.channel),scope='conv1')
-        conv2 = slim.conv2d(conv1, 32*cfg.channel, (1,1,cfg.channel), scope='conv2')
-        conv3 = slim.conv2d(conv2,cfg.channel, (5,5,cfg.channel), scope='conv3')
+        conv1 = slim.conv2d(self.LR,64*cfg.channel,(9,9,cfg.channel),scope='conv1',weights_initializer = initializers.random_uniform(minval = 0, maxval = 1))
+        conv2 = slim.conv2d(conv1, 32*cfg.channel, (1,1,cfg.channel), scope='conv2',weights_initializer = initializers.random_uniform(minval = 0, maxval = 1))
+        conv3 = slim.conv2d(conv2,cfg.channel, (5,5,cfg.channel), scope='conv3',weights_initializer = initializers.random_uniform(minval = 0, maxval = 1))
         return conv3
 
     def train(self,LR_imgs,HR_imgs):
