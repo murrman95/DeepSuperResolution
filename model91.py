@@ -5,21 +5,21 @@ slim=tf.contrib.slim
 
 class SRCNN:
     def __init__(self,sess):
-        self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
-        self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
+        self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel*cfg.numImages])
+        self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel*cfg.numImages])
         self.gen_HR=self.network()
         self.sess=sess
 
 
     def network(self):
-        conv1 = slim.conv2d(self.LR,64,(9,9),scope='conv1') #,cfg.channel
-        conv2 = slim.conv2d(conv1, 32, (1,1), scope='conv2') #,cfg.channel
-        conv3 = slim.conv2d(conv2,cfg.channel, (5,5), scope='conv3') #,cfg.channel
+        conv1 = slim.conv2d(self.LR,64,(9,9),scope='conv1')
+        conv2 = slim.conv2d(conv1, 32, (1,1),scope='conv2')
+        conv3 = slim.conv2d(conv2,cfg.channel,(5,5),scope='conv3') #,cfg.channel
         return conv3
 
     def train(self,LR_imgs,HR_imgs):
         saver = tf.train.Saver(max_to_keep=1)
-        self.loss = tf.reduce_mean(tf.square(self.HR - self.gen_HR))  # MSE
+        self.loss = tf.reduce_mean(tf.abs(self.HR - self.gen_HR))  # MSE
         self.train_op = tf.train.AdamOptimizer(cfg.learning_rate).minimize(self.loss)
         self.sess.run(tf.global_variables_initializer())
         for i in range(cfg.epoch):

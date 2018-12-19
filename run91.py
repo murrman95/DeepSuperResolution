@@ -24,11 +24,10 @@ def get_images():
 
 	#Number of image for training and testing
     for i in range(0,numImages):
-        img1, img2, img3 = si.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
-
+        img1, newImage = si.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
         #train on normalized images
         train_images.append(img1.astype(dtype = np.float32)/255.)
-        train_low.append(cv.resize(img2.astype(dtype = np.float32),(cfg.width,cfg.height), interpolation = cv.INTER_LINEAR)/255.)
+        train_low.append(newImage)
     HR_img = train_images[0:int(trainRatio*numImages)]
     LR_img = train_low[0:int(trainRatio*numImages)]
 	#HR_img=np.reshape(mnist[0:90],(-1,28,28,config91.channels)) #mnist.train.images[0:2000]
