@@ -18,7 +18,7 @@ def get_images():
     images = np.zeros((numImages,cfg.width,cfg.height,cfg.channel))
     train_images = []
     train_low = []
-    #Chris's training photos
+    #Chris's training photosC:\Users\Guillaume\Downloads\INF573Project2018-master\images
     mypath = "./images"#mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 	#Number of image for training and testing
@@ -37,8 +37,6 @@ def get_images():
     #cv.imshow("LR",LR_img[0])
     #cv.waitKey(0)
     ##it works here as well/ ok
-
-
     return LR_img,HR_img
 
 LR_img,HR_img=get_images()
