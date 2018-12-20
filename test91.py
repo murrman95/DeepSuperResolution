@@ -13,7 +13,7 @@ import splitImage as si
 # print(mnist.shape)
 def get_images():
 
-    numImages = cfg.numImages
+    numImages = 300#cfg.numImages
     trainRatio = cfg.trainRatio
     images = np.zeros((numImages,cfg.width,cfg.height,cfg.channel))
     train_images = []
@@ -26,16 +26,16 @@ def get_images():
         img1, img2, img3 = si.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
         train_images.append(img1.astype(dtype = np.float32)/255.)
         #cv.imshow("HR",train_images[0])
-        cv.imwrite(os.path.join('SR','yo'+str(i)+'.jpg'),img2.astype(dtype = np.float32)*256)
+        # cv.imwrite(os.path.join('SR','yo'+str(i)+'.jpg'),img2)
         train_low.append(cv.resize(img2.astype(dtype = np.float32),(cfg.width,cfg.height), interpolation = cv.INTER_LINEAR)/255.)
         #cv.imshow("LR",train_low[0])
         #cv.waitKey(0)
-
+    print(np.amax(train_images[0]))
     HR_img = train_images[int(trainRatio*numImages):numImages]
     LR_img = train_low[int(trainRatio*numImages):numImages]
-    #cv.imshow("HR",HR_img[0])
-    #cv.imshow("LR",LR_img[0])
-    #cv.waitKey(0)
+    # cv.imshow("HR",HR_img[0])
+    # cv.imshow("LR",LR_img[0])
+    # cv.waitKey(0)
     ##it works here as well/ ok
     return LR_img,HR_img
 
@@ -51,12 +51,13 @@ restorer.restore(sess,tf.train.latest_checkpoint('weightfile91'))
 SR_img = sess.run(srcnn.gen_HR,feed_dict={srcnn.LR:LR_img})
 print(np.amax(SR_img))
 print(SR_img.shape)
-
-# z=np.concatenate((HR_img,LR_img,SR_img),2)
+print("Mean absolute diff with the original image in the interpolated case: ",np.mean(np.abs(np.array(HR_img[0])-
+                    np.array(LR_img[0])))," and the SR case",np.mean(np.abs(np.array(HR_img[0])-np.array(SR_img[0]))))
+z=np.concatenate((HR_img,LR_img,SR_img),2)
 
 for i in range(SR_img.shape[0]):
-    cv.imwrite(os.path.join('SR',str(i)+'_'+'.jpg'),HR_img[i]*256)
-    cv.imwrite(os.path.join('SR',str(i)+'.jpg'),SR_img[i]*256)
+    cv.imwrite(os.path.join('SR',str(i)+'_'+'.jpg'),z[i]*255)
+    # cv.imwrite(os.path.join('SR',str(i)+'.jpg'),SR_img[i]*255)
 
     # cv.imwrite(os.path.join('SR','yo'+str(i)+'.jpg'),LR_img[i]*256)
     # cv.imwrite(os.path.join('SR',str(i)+'+.jpg'),img[i]*256)

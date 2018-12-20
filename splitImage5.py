@@ -42,5 +42,3 @@ def getPImages(img,trueSize):
             resImage[:,:, 9:12] = cv.resize((img4).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:,12:15] = cv.resize((img5).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
     return resImage
-
-

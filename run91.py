@@ -9,35 +9,55 @@ from os.path import isfile, join
 import model91 as model
 import tensorflow as tf
 from matplotlib import  pyplot as plt
-import splitImage as si5
+import splitImage5 as si5
+import splitImage as si
 def get_images():
     #mnist = input_data.read_data_sets("91/", one_hot=True)
-    numImages = cfg.numImages
+    numImages = 300#cfg.numImages
     trainRatio = cfg.trainRatio
     images = np.zeros((numImages,cfg.width,cfg.height,cfg.channel))
     train_images = []
     train_low = []
     #Chris's training photos
-    #mypath = "./images"#
-    mypath = "/home/christopher/test_images"
+    mypath = "./images"#
+    # mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     print(len(onlyfiles))
+###########################"""
+    # for i in range(0,numImages):
+    #     img1, img2, img3 = si.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
+    #
+    #     #train on normalized images
+    #     train_images.append(img1.astype(dtype = np.float32)/255.)
+    #     train_low.append(cv.resize(img2.astype(dtype = np.float32),(cfg.width,cfg.height), interpolation = cv.INTER_LINEAR)/255.)
+    # HR_img = train_images[0:int(trainRatio*numImages)]
+    # LR_img = train_low[0:int(trainRatio*numImages)]
+    # print(len(LR_img))
+	# #HR_img=np.reshape(mnist[0:90],(-1,28,28,config91.channels)) #mnist.train.images[0:2000]
+###############################
 
 	#Number of image for training and testing
     for i in range(0,numImages):
-        #If we want to try by stacking 5 low res images.
-        #img1, image5 = si5.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
-
+    ####
+        #If we want to try by stacking 5 low res images.  (set cfg.channel=15 -> still work to do in this case inn the model)
+        # img1, image5 = si5.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
+        # newImage = cv.resize(image5.astype(dtype = np.float32),(int(cfg.imgSize/2),int(cfg.imgSize/2)))
+        # newImage = cv.resize(newImage,(int(cfg.imgSize),int(cfg.imgSize)),interpolation = cv.INTER_LINEAR)
+        # img1=cv.resize(img1.astype(dtype = np.float32),(int(cfg.imgSize),int(cfg.imgSize)))
+    ###
         #Just using a single low-res image
         img1  = cv.imread(mypath + "/" + onlyfiles[i])
-        newImage = cv.resize(img1,(cfg.imgSize/2,cfg.imgSize/2))
-        newImage = cv.resize(newImage,(cfg.imgSize,cfg.imgSize),interpolation = cv.INTER_LINEAR)
+        newImage = cv.resize(img1.astype(dtype = np.float32),(int(cfg.imgSize/2),int(cfg.imgSize/2)))
+        newImage = cv.resize(newImage,(int(cfg.imgSize),int(cfg.imgSize)),interpolation = cv.INTER_LINEAR)
+        img1=cv.resize(img1.astype(dtype = np.float32),(int(cfg.imgSize),int(cfg.imgSize)))
+    ####
 
         #train on normalized images
         train_images.append(img1.astype(dtype = np.float32)/255.)
         train_low.append(newImage.astype(dtype = np.float32)/255.)
     HR_img = train_images[0:int(trainRatio*numImages)]
     LR_img = train_low[0:int(trainRatio*numImages)]
+
 	#HR_img=np.reshape(mnist[0:90],(-1,28,28,config91.channels)) #mnist.train.images[0:2000]
     #     #LR_img=[]
     #for i in range(len(HR_img)):
