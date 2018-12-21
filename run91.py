@@ -18,6 +18,7 @@ def get_images():
     images = np.zeros((numImages,cfg.width,cfg.height,cfg.channel))
     train_images = []
     train_low = []
+    low_res_center=[]
     #Chris's training photos
     mypath = "./images"#
     # mypath = "/home/christopher/test_images"
@@ -25,11 +26,15 @@ def get_images():
     print(len(onlyfiles))
 
 	#Number of image for training and testing
-    for i in range(0,numImages):
+    for i in range(0,int(trainRatio*numImages)):
         if cfg.multi:
-        #If we want to try by stacking 5 low res images.  (set cfg.channel=15 -> still work to do in this case inn the model)
+        #If we want to try by stacking 5 low res images.
             img1, image5,image_center = si5.split(mypath + "/" + onlyfiles[i],cfg.imgSize)
             img1=cv.resize(img1.astype(dtype = np.float32),(int(cfg.imgSize),int(cfg.imgSize)))
+
+            train_images.append(img1.astype(dtype = np.float32)/255.)
+            train_low.append(image5.astype(dtype = np.float32))
+            low_res_center.append(image_center.astype(dtype = np.float32))
         ###
         else:
         #Just using a single low-res image
@@ -38,22 +43,27 @@ def get_images():
             image5 = cv.resize(newImage,(int(cfg.imgSize),int(cfg.imgSize)),interpolation = cv.INTER_LINEAR)
             img1=cv.resize(img1.astype(dtype = np.float32),(int(cfg.imgSize),int(cfg.imgSize)))
 
+            train_images.append(img1.astype(dtype = np.float32)/255.)
+            train_low.append(image5.astype(dtype = np.float32)/255.)
+
         #train on normalized images
-        train_images.append(img1.astype(dtype = np.float32)/255.)
-        train_low.append(image5.astype(dtype = np.float32)/255.)
-    HR_img = train_images[0:int(trainRatio*numImages)]
-    LR_img = train_low[0:int(trainRatio*numImages)]
 
-    return LR_img,HR_img
+    HR_img = train_images
+    LR_img = train_low
 
+    if cfg.multi:
+        LR_img_center=low_res_center[0:int(trainRatio*numImages)]
+        return LR_img,HR_img,LR_img_center
 
-def save_mnist():
-    a,b=get_images()
-    print(a.shape,b.shape)
-    z=np.concatenate((a,b),2)
-    for i in range(20):
-        cv2.imwrite(os.path.join('origin',str(i)+'.jpg'),z[i]*256)
-LR_img,HR_img=get_images()
+    return LR_img,HR_img,LR_img
+
+# def save_mnist():
+#     a,b=get_images()
+#     print(a.shape,b.shape)
+#     z=np.concatenate((a,b),2)
+#     for i in range(20):
+#         cv2.imwrite(os.path.join('origin',str(i)+'.jpg'),z[i]*256)
+LR_img,HR_img,LR_loss=get_images()
 sess=tf.Session()
 srcnn=model.SRCNN(sess)
-srcnn.train(LR_img,HR_img)
+srcnn.train(LR_img,HR_img,LR_loss)

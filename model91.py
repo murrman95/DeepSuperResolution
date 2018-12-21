@@ -8,6 +8,7 @@ class SRCNN:
     def __init__(self,sess):
         self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
         self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,3])
+        self.LR_losses=tf.placeholder("float32",[None,cfg.width,cfg.height,3])
         self.gen_HR,self.weights,self.residuals=self.network()
         self.sess=sess
         # self.nbr_layers=6
@@ -39,14 +40,10 @@ class SRCNN:
                 tensor = tf.nn.relu(tf.nn.bias_add(tf.nn.conv2d(entry, conv_w, strides=[1,1,1,1], padding=padding), conv_b)) #, strides=[1,1,1,1]
 
         # output = tf.clip_by_value(tensor, clip_value_min=0, clip_value_max=1)
-        if cfg.multi==True:
-            tensor_out=tf.add(tensor,self.LR[:,:,:,0:3])
-        else:
-            tensor_out = tf.add(tensor, self.LR)
+        tensor_out=tf.add(tensor,self.LR_losses)
     #####one image end
 
         return tensor_out,weights,tensor
-
 
             #############potential personalisable padding (2 height and 1 wwidth)
             # input = tf.placeholder(tf.float32, [None, 28, 28, 3])
@@ -54,7 +51,9 @@ class SRCNN:
             # filter = tf.placeholder(tf.float32, [5, 5, 3, 16])
             # output = tf.nn.conv2d(padded_input, filter, strides=[1, 1, 1, 1], padding="VALID")
 
-    def train(self,LR_imgs,HR_imgs):
+
+
+    def train(self,LR_imgs,HR_imgs,LR_losses):
         saver = tf.train.Saver(max_to_keep=1)
         self.loss = tf.reduce_sum(tf.nn.l2_loss(tf.subtract(self.HR, self.gen_HR)))#tf.reduce_mean(tf.pow(self.HR - self.gen_HR-self.LR, 2))#tf.losses.absolute_difference(self.HR,self.gen_HR+self.LR)#tf.reduce_mean(tf.losses.absolute_difference(self.HR[:,:,1],self.gen_HR[:,:,1])+tf.losses.absolute_difference(self.HR[:,:,0],self.gen_HR[:,:,0])+tf.losses.absolute_difference(self.HR[:,:,2], self.gen_HR[:,:,2]))  # MSE #tf.losses.absolute_difference(self.HR,self.gen_HR)#
         for w in self.weights:
@@ -64,11 +63,11 @@ class SRCNN:
         self.train_op = tf.train.AdamOptimizer(learning_rate).minimize(self.loss)
         self.sess.run(tf.global_variables_initializer())
         for i in range(cfg.epoch):
-            LR_imgs,HR_imgs=shuffle(LR_imgs,HR_imgs)
+            LR_imgs,HR_imgs,LR_losses=shuffle(LR_imgs,HR_imgs,LR_losses)
             for j in range(int(len(HR_imgs)/cfg.batch_size)):
-                LR_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
+                LR_batch,HR_batch,LR_losses_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],LR_losses[j*cfg.batch_size:(j+1)*cfg.batch_size]
 
-                self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
+                self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch})
                 if j%5==0:
-                    print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
+                    print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch}))
             saver.save(self.sess,cfg.model_ckpt,global_step=i)
