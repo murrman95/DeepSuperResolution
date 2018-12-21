@@ -10,9 +10,7 @@ class SRCNN:
         self.LR=tf.placeholder("float32",[None,cfg.width,cfg.height,cfg.channel])
         self.HR=tf.placeholder("float32",[None,cfg.width,cfg.height,3])
 
-        #for doing network with multiple low res inputs
-        if(cfg.multi):
-            self.LR_losses=tf.placeholder("float32",[None,cfg.width,cfg.height,3])
+        self.LR_losses=tf.placeholder("float32",[None,cfg.width,cfg.height,3])
         self.gen_HR,self.weights,self.residuals=self.network()
         self.sess=sess
         # self.nbr_layers=6
@@ -62,7 +60,7 @@ class SRCNN:
             self.loss += tf.nn.l2_loss(w)*1e-4
         global_step = tf.Variable(0, trainable=False)
         learning_rate 	= tf.train.exponential_decay(cfg.learning_rate/100, global_step*cfg.batch_size, len(LR_imgs)*120, cfg.learning_rate, staircase=True)
-        self.train_op = tf.train.AdamOptimizer(learning_rate).minimize(self.loss)
+        self.train_op = tf.train.AdamOptimizer(learning_rate).minimize(self.loss, global_step=global_step)
         self.sess.run(tf.global_variables_initializer())
 
         if(cfg.writeResults):
@@ -72,29 +70,28 @@ class SRCNN:
                 for i in range(cfg.epoch + 1):
                     LR_imgs,LR_losses,HR_imgs=shuffle(LR_imgs,LR_losses,HR_imgs)
                     if(i % 5 == 0):
-                        if(cfg.multi):
-                            SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test,self.LR_losses:LR_losses_test})
-                        else:
-                            SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test})
+                        # if(cfg.multi):
+                        SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test,self.LR_losses:LR_losses_test})
+                        # else:
+                        #     SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test})
                         acc = []
                         acc.append(i)
-                        acc.append(np.mean(np.abs(np.array(HR_test)-np.array(LR_test))))
+                        acc.append(np.mean(np.abs(np.array(HR_test)-np.array(LR_losses_test))))
                         acc.append(np.mean(np.abs(np.array(HR_test)-np.array(SR_test))))
                         writer.writerow(acc)
                     for j in range(int(len(HR_imgs)/cfg.batch_size)):
                         LR_batch,LR_losses_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],LR_losses[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
-                        if(cfg.multi):
-                            self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.LR:LR_losses_batch,self.HR:HR_batch})
-                        else:
-                            self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
-                        
+                        self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch})
+                        if j%5==0:
+                            print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch}))
                     saver.save(self.sess,cfg.model_ckpt,global_step=i)
         else:
             for i in range(cfg.epoch):
                 LR_imgs,LR_losses,HR_imgs=shuffle(LR_imgs,LR_losses,HR_imgs)
                 for j in range(int(len(HR_imgs)/cfg.batch_size)):
                     LR_batch,LR_losses_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],LR_losses[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
-                    if(cfg.multi):
-                        self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.LR_losses:LR_losses_batch,self.HR:HR_batch})
+
+                    self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch})
+                    if j%5==0:
+                        print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch,self.LR_losses:LR_losses_batch}))
                 saver.save(self.sess,cfg.model_ckpt,global_step=i)
-                

@@ -21,8 +21,8 @@ def get_images():
     train_low = []
     LR_img_center=[]
     #Chris's training photosC:\Users\Guillaume\Downloads\INF573Project2018-master\images
-    #mypath = "./images"#
-    mypath = "/home/christopher/test_images"
+    mypath = "./images"#
+    # mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 	#Number of image for training and testing
     for i in range(int(trainRatio*numImages),numImages):
@@ -53,9 +53,6 @@ def get_images():
     if cfg.multi:
         return LR_img,HR_img,LR_img_center
 
-
-    cv.imshow("test",low_res_center[0])
-    cv.waitKey(0)
     # cv.imshow("HR",HR_img[0])
     # cv.imshow("LR",LR_img[0])
     # cv.waitKey(0)
