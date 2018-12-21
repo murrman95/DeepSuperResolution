@@ -21,7 +21,8 @@ def get_images():
     train_low = []
     low_res_center=[]
     #Chris's training photosC:\Users\Guillaume\Downloads\INF573Project2018-master\images
-    mypath = "./images"#mypath = "/home/christopher/test_images"
+    #mypath = "./images"#
+    mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 	#Number of image for training and testing
     for i in range(0,numImages):
@@ -65,6 +66,7 @@ LR_img,HR_img,LR_img_center=get_images()
 sess=tf.Session()
 srcnn=model.SRCNN(sess)
 restorer=tf.train.Saver()
+#restorer.restore(sess, "wightfile91/model.ckpt-39")
 restorer.restore(sess,tf.train.latest_checkpoint('weightfile91'))
 #def save_SR(HR_img,LR_img):
 #yeah it doesn't work here...

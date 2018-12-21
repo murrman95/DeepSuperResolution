@@ -41,10 +41,14 @@ def get_images():
         #train on normalized images
         train_images.append(img1.astype(dtype = np.float32)/255.)
         train_low.append(image5.astype(dtype = np.float32)/255.)
-    HR_img = train_images[0:int(trainRatio*numImages)]
-    LR_img = train_low[0:int(trainRatio*numImages)]
+    HR_img_train = train_images[0:int(trainRatio*numImages)]
+    LR_img_train = train_low[0:int(trainRatio*numImages)]
 
-    return LR_img,HR_img
+    #For testing throughout training and getting these results
+    HR_img_test = train_images[int(trainRatio*numImages):numImages]
+    LR_img_test = train_low[int(trainRatio*numImages):numImages]
+
+    return LR_img_train,HR_img_train,LR_img_test,HR_img_test
 
 
 def save_mnist():
@@ -53,7 +57,7 @@ def save_mnist():
     z=np.concatenate((a,b),2)
     for i in range(20):
         cv2.imwrite(os.path.join('origin',str(i)+'.jpg'),z[i]*256)
-LR_img,HR_img=get_images()
+LR_img,HR_img,LR_test,HR_test=get_images()
 sess=tf.Session()
 srcnn=model.SRCNN(sess)
-srcnn.train(LR_img,HR_img)
+srcnn.train(LR_img,HR_img,LR_test,HR_test)

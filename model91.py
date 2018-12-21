@@ -1,6 +1,7 @@
 import tensorflow as tf
 import config91 as cfg
 from sklearn.utils import shuffle
+import csv
 
 import numpy as np
 
@@ -54,7 +55,7 @@ class SRCNN:
             # filter = tf.placeholder(tf.float32, [5, 5, 3, 16])
             # output = tf.nn.conv2d(padded_input, filter, strides=[1, 1, 1, 1], padding="VALID")
 
-    def train(self,LR_imgs,HR_imgs):
+    def train(self,LR_imgs,HR_imgs,LR_test,HR_test):
         saver = tf.train.Saver(max_to_keep=1)
         self.loss = tf.reduce_sum(tf.nn.l2_loss(tf.subtract(self.HR, self.gen_HR)))#tf.reduce_mean(tf.pow(self.HR - self.gen_HR-self.LR, 2))#tf.losses.absolute_difference(self.HR,self.gen_HR+self.LR)#tf.reduce_mean(tf.losses.absolute_difference(self.HR[:,:,1],self.gen_HR[:,:,1])+tf.losses.absolute_difference(self.HR[:,:,0],self.gen_HR[:,:,0])+tf.losses.absolute_difference(self.HR[:,:,2], self.gen_HR[:,:,2]))  # MSE #tf.losses.absolute_difference(self.HR,self.gen_HR)#
         for w in self.weights:
@@ -63,12 +64,23 @@ class SRCNN:
         learning_rate 	= tf.train.exponential_decay(cfg.learning_rate/100, global_step*cfg.batch_size, len(LR_imgs)*120, cfg.learning_rate, staircase=True)
         self.train_op = tf.train.AdamOptimizer(learning_rate).minimize(self.loss)
         self.sess.run(tf.global_variables_initializer())
-        for i in range(cfg.epoch):
-            LR_imgs,HR_imgs=shuffle(LR_imgs,HR_imgs)
-            for j in range(int(len(HR_imgs)/cfg.batch_size)):
-                LR_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
 
-                self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
-                if j%5==0:
-                    print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
-            saver.save(self.sess,cfg.model_ckpt,global_step=i)
+        with open("normalvdcnn10.csv","w",newline = '') as myfile:
+            writer = csv.writer(myfile, quoting  = csv.QUOTE_ALL)
+            writer.writerow(['Epochs','Average interpolated difference','Average SR differece'])
+            for i in range(cfg.epoch):
+                LR_imgs,HR_imgs=shuffle(LR_imgs,HR_imgs)
+                for j in range(int(len(HR_imgs)/cfg.batch_size)):
+                    LR_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
+                    self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
+                    if j%5==0:
+                        print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
+                if(i % 2 == 0):
+                    SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test})
+
+                    acc = []
+                    acc.append(i)
+                    acc.append(np.mean(np.abs(np.array(HR_test)-np.array(LR_test))))
+                    acc.append(np.mean(np.abs(np.array(HR_test)-np.array(SR_test))))
+                    writer.writerow(acc)
+                saver.save(self.sess,cfg.model_ckpt,global_step=i)

@@ -14,7 +14,7 @@ batch_size=64
 nbr_patches=64
     #nbr of hidden + input + output layers
 nbr_layers=20
-epoch=30
+epoch=10
 model_ckpt = os.path.join('weightfile91','model.ckpt')
 numImages = 400##300
 trainRatio = 0.7
