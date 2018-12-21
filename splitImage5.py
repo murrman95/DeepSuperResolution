@@ -34,11 +34,12 @@ def getPImages(img,trueSize):
             img3[i][j] = k3[0][0] * img[ii][jj] + k3[0][1] * img[ii][jj + 1] + k3[1][0] * img[ii + 1][jj] + k3[1][1] * img[ii + 1][ jj + 1]
             img4[i][j] = k4[0][0] * img[ii][jj] + k4[0][1] * img[ii][jj + 1] + k4[1][0] * img[ii + 1][jj] + k4[1][1] * img[ii + 1][ jj + 1]
             img5[i][j] = k5[0][0] * img[ii][jj] + k5[0][1] * img[ii][jj + 1] + k5[1][0] * img[ii + 1][jj] + k5[1][1] * img[ii + 1][ jj + 1]
-            #print(img1.shape)
+
             #print((cv.resize(img1.astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)).shape)
             resImage[:,:, 0: 3] = cv.resize(img1.astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:, 3: 6] = cv.resize((img2).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:, 6: 9] = cv.resize((img3).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:, 9:12] = cv.resize((img4).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:,12:15] = cv.resize((img5).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
+
     return resImage,resImage[:,:, 0: 3]
