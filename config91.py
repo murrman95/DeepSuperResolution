@@ -19,3 +19,4 @@ model_ckpt = os.path.join('weightfile91','model.ckpt')
 numImages = 400##300
 trainRatio = 0.7
 imgSize = 81
+writeResults=False

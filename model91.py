@@ -65,9 +65,26 @@ class SRCNN:
         self.train_op = tf.train.AdamOptimizer(learning_rate).minimize(self.loss)
         self.sess.run(tf.global_variables_initializer())
 
-        with open("normalvdcnn10.csv","w",newline = '') as myfile:
-            writer = csv.writer(myfile, quoting  = csv.QUOTE_ALL)
-            writer.writerow(['Epochs','Average interpolated difference','Average SR differece'])
+        if(cfg.writeResults):
+            with open("normalvdcnn10.csv","w",newline = '') as myfile:
+                writer = csv.writer(myfile, quoting  = csv.QUOTE_ALL)
+                writer.writerow(['Epochs','Average interpolated difference','Average SR differece'])
+                for i in range(cfg.epoch + 1):
+                    LR_imgs,HR_imgs=shuffle(LR_imgs,HR_imgs)
+                    for j in range(int(len(HR_imgs)/cfg.batch_size)):
+                        LR_batch,HR_batch=LR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size],HR_imgs[j*cfg.batch_size:(j+1)*cfg.batch_size]
+                        self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
+                        if j%5==0:
+                            print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
+                    if(i % 5 == 0):
+                        SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test})
+                        acc = []
+                        acc.append(i)
+                        acc.append(np.mean(np.abs(np.array(HR_test)-np.array(LR_test))))
+                        acc.append(np.mean(np.abs(np.array(HR_test)-np.array(SR_test))))
+                        writer.writerow(acc)
+                    saver.save(self.sess,cfg.model_ckpt,global_step=i)
+        else:
             for i in range(cfg.epoch):
                 LR_imgs,HR_imgs=shuffle(LR_imgs,HR_imgs)
                 for j in range(int(len(HR_imgs)/cfg.batch_size)):
@@ -75,12 +92,5 @@ class SRCNN:
                     self.sess.run(self.train_op,feed_dict={self.LR:LR_batch,self.HR:HR_batch})
                     if j%5==0:
                         print(i,self.sess.run(self.loss,feed_dict={self.LR:LR_batch,self.HR:HR_batch}))
-                if(i % 2 == 0):
-                    SR_test = self.sess.run(self.gen_HR,feed_dict={self.LR:LR_test})
-
-                    acc = []
-                    acc.append(i)
-                    acc.append(np.mean(np.abs(np.array(HR_test)-np.array(LR_test))))
-                    acc.append(np.mean(np.abs(np.array(HR_test)-np.array(SR_test))))
-                    writer.writerow(acc)
                 saver.save(self.sess,cfg.model_ckpt,global_step=i)
+                
