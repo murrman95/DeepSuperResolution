@@ -6,8 +6,8 @@ import config91 as cfg
 def split(path,trueSize):
     img = cv.imread(path)
     img = cv.resize(img, (trueSize, trueSize))
-    imgNew = getPImages(img,trueSize)
-    return img, imgNew
+    imgNew,imgNew_center = getPImages(img,trueSize)
+    return img, imgNew,imgNew_center
 
 def getPImages(img,trueSize):
     k1 = np.array([[[0.25, 0.25, 0.25], [0.25,0.25,0.25]],[[0.25,0.25,0.25], [0.25,0.25,0.25]]])
@@ -17,7 +17,7 @@ def getPImages(img,trueSize):
     k5 = np.array([[[0.1,0.1,0.1],[0.1,0.1,0.1]],[[0.4,0.4,0.4], [0.4,0.4,0.4]]])
 
 	#stacking for a total of 5 interpolated images
-    resImage = np.zeros((trueSize,trueSize,cfg.channel*cfg.numImages))
+    resImage = np.zeros((trueSize,trueSize,cfg.channel))
 
     img1 = np.zeros((int(trueSize/2),int(trueSize/2),3))
     img2 = np.zeros((int(trueSize/2),int(trueSize/2),3))
@@ -41,4 +41,4 @@ def getPImages(img,trueSize):
             resImage[:,:, 6: 9] = cv.resize((img3).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:, 9:12] = cv.resize((img4).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
             resImage[:,:,12:15] = cv.resize((img5).astype(dtype = np.float32),(trueSize,trueSize),interpolation = cv.INTER_LINEAR)/255.
-    return resImage
+    return resImage,resImage[:,:, 0: 3]
