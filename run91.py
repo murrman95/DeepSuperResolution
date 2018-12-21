@@ -57,10 +57,13 @@ def get_images():
     LR_img_test = train_low[int(trainRatio*numImages):numImages]
 
     if cfg.multi:
-        LR_img_center=low_res_center[0:int(trainRatio*numImages)]
+        LR_train_center=low_res_center[0:int(trainRatio*numImages)]
+        LR_test_center=low_res_center[int(trainRatio*numImages),numImages]
     else:
-        LR_img_center = np.zeros((numImages,cfg.width,cfg.height,3))
-    return LR_img_train,HR_img_train,LR_img_center,LR_img_test,HR_img_test
+        LR_train_center = np.zeros((numImages*trainRatio,cfg.width,cfg.height,3))
+        LR_test_center = np.zeros((numImages - int(numImages*trainRatio),cfg.width,cfg.height,3))
+
+    return LR_img_train,HR_img_train,LR_train_center,LR_img_test,HR_img_test,LR_test_center
 
 
 def save_mnist():
