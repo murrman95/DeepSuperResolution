@@ -1,7 +1,6 @@
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 import config91 as cfg
-from scipy.ndimage import zoom
 import cv2 as cv
 import os
 from os import listdir
@@ -11,19 +10,17 @@ import tensorflow as tf
 from matplotlib import  pyplot as plt
 import splitImage5 as si5
 import splitImage as si
+
 def get_images():
-    #mnist = input_data.read_data_sets("91/", one_hot=True)
     numImages = cfg.numImages
     trainRatio = cfg.trainRatio
     images = np.zeros((numImages,cfg.width,cfg.height,cfg.channel))
     train_images = []
     train_low = []
     low_res_center=[]
-    #Chris's training photos
     mypath = "./images"#
-    # mypath = "/home/christopher/test_images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    print(len(onlyfiles))
+
 
 	#Number of image for training and testing
     for i in range(0,int(numImages)):
@@ -56,23 +53,13 @@ def get_images():
     HR_img_test = train_images[int(trainRatio*numImages):int(numImages)]
     LR_img_test = train_low[int(trainRatio*numImages):int(numImages)]
 
-    if cfg.multi:
+    if cfg.multi: #we have to add the individual low resed image too in the multi case
         LR_train_center=low_res_center[0:int(trainRatio*numImages)]
         LR_test_center=low_res_center[int(trainRatio*numImages):int(numImages)]
         return LR_img_train,HR_img_train,LR_train_center,LR_img_test,HR_img_test,LR_test_center
-    # else:
-    #     LR_train_center = np.zeros((int(numImages*trainRatio),cfg.width,cfg.height,3))
-    #     LR_test_center = np.zeros((int(numImages) - int(numImages*trainRatio),cfg.width,cfg.height,3))
 
     return LR_img_train,HR_img_train,LR_img_train,LR_img_test,HR_img_test,LR_img_test
 
-
-# def save_mnist():
-#     a,b=get_images()
-#     print(a.shape,b.shape)
-#     z=np.concatenate((a,b),2)
-#     for i in range(20):
-#         cv2.imwrite(os.path.join('origin',str(i)+'.jpg'),z[i]*256)
 LR_img,HR_img,LR_losses,LR_test,HR_test,LR_test_center=get_images()
 sess=tf.Session()
 srcnn=model.SRCNN(sess)
