@@ -19,7 +19,7 @@ def get_images():
     train_images = []
     train_low = []
     LR_img_center=[]
-    mypath = "./images"#
+    mypath = "./images"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     for i in range(int(trainRatio*numImages),numImages):
         if cfg.multi:
