@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import numpy
-import config91 as cfg
+import config as cfg
 
 def split(path,trueSize):
     img = cv.imread(path)
